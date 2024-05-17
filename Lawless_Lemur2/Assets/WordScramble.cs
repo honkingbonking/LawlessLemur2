@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
+using System.Diagnostics;
 
+using Debug = UnityEngine.Debug;
 public class WordScramble : MonoBehaviour
 {
     public string[] words; // Array of strings
@@ -8,13 +10,24 @@ public class WordScramble : MonoBehaviour
     public TextMeshProUGUI[] wordSlots; // Array of TextMeshPro for displaying scrambled words
     public TextMeshPro resultText; // Text to display result
 
+    [SerializeField] GameObject speechBubble;
+
     private string originalString; // Original unscrambled string
     private string currentString = ""; // Current string formed from rearranged words
+
+    ManageFlow flow;
 
     int wordAmt = 0;
 
     private void Start()
     {
+        flow = GetComponent<ManageFlow>();
+    }
+
+    public void StartShuffling()
+    {
+        speechBubble.SetActive(true);
+
         // Select a random string from the array
         originalString = words[Random.Range(0, words.Length)];
         mainText.text = originalString;
@@ -80,11 +93,17 @@ public class WordScramble : MonoBehaviour
             if (currentString.Trim() == originalString)
             {
                 Debug.Log("YOU WIN");
-                resultText.text = "YOU WIN";
+                flow.KillThem();
+                //resultText.text = "YOU WIN";
             }
             else
             {
+                resultText.text = "";
+                flow.Death();
+                Debug.Log("Failed!");
                 //When it is wrong
+                ///Do animation
+                ///
             }
         }
     }
