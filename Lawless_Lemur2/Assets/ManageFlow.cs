@@ -7,6 +7,7 @@ public class ManageFlow : MonoBehaviour
 
     [SerializeField] GameObject[] toggleObj,skeletons;
     [SerializeField] GameObject Lemur, Explosion, End;
+    private Animator lemurAnim;
     public int currentPos = 0;
 
     WordScramble scram;
@@ -14,12 +15,15 @@ public class ManageFlow : MonoBehaviour
 
     [Header("Audio")]
     AudioSource sauce;
-    [SerializeField] AudioClip[] winClip, loseClip, dialogue;
+    [SerializeField] AudioClip[] winClip, loseClip, dialogue,guitar;
 
     private void Start()
     {
         sauce = GetComponent<AudioSource>();
         scram = GetComponent<WordScramble>();
+        lemurAnim = Lemur.GetComponent<Animator>();
+
+        ToggleObj();
 
         Next();
     }
@@ -39,16 +43,34 @@ public class ManageFlow : MonoBehaviour
         anim.SetBool("Talk", true);
         AudioClip selectedDialogue = Clip(dialogue);
         sauce.PlayOneShot(selectedDialogue);
-        StartCoroutine(Wait(selectedDialogue.length));
+        StartCoroutine(Wait(selectedDialogue.length,"normal"));
         //wait til after clip
     }
 
-    private IEnumerator Wait(float Time)
+    private IEnumerator Wait(float Time,string type)
     {
         yield return new WaitForSeconds(Time);
-        Debug.Log("Done waiting");
-        scram.StartShuffling();
-        anim.SetBool("Talk", false);
+        switch (type)
+        {
+            case "normal":
+                Debug.Log("Done waiting");
+                scram.StartShuffling();
+                anim.SetBool("Talk", false);
+                break;
+            case "strum":
+                lemurAnim.SetBool("Talk", false);
+                break;
+        }
+    }
+
+    public void GuitarStrum()
+    {
+        AudioClip clipToPlay = Clip(guitar);
+        lemurAnim.SetBool("Talk", true);
+        sauce.PlayOneShot(clipToPlay);
+        StartCoroutine(Wait(clipToPlay.length, "strum"));
+        
+        
     }
 
     public void KillThem()
@@ -71,7 +93,7 @@ public class ManageFlow : MonoBehaviour
         //Play explosion sound
     }
 
-    AudioClip Clip(AudioClip[] clip)
+    public AudioClip Clip(AudioClip[] clip)
     {
         return clip[Random.Range(0, clip.Length)];
     }
